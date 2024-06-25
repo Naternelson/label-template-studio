@@ -6,9 +6,11 @@ import global from './global';
 export const store = configureStore({
 	reducer: combineReducers({
 		sheet,
-        global
+		global,
 	}),
 });
+
+
 export type RootTemplateState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export const useTemplateDispatch = useDispatch.withTypes<AppDispatch>();

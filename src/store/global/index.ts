@@ -37,6 +37,9 @@ export const globalSlice = createSlice({
         },
         setMode: (state, action) => {
             state.mode = action.payload;
+        },
+        setState: (state, action) => {
+            return action.payload;
         }
     }
 })

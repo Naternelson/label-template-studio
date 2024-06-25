@@ -1,5 +1,5 @@
-import { Box, styled } from "@mui/material";
-import { BorderColor, PanelColor, backgroundColor, lineColor } from "../../constants";
+import { Box, styled } from '@mui/material';
+import { BorderColor, PanelColor, backgroundColor, lineColor } from '../../constants';
 
 export const Background = styled(Box)({
 	overflow: 'hidden',

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTemplateDispatch, useTemplateSelector } from '..';
 import { Border, Padding } from '../../types';
 import { useUnit } from '../global/hooks';
@@ -14,6 +14,8 @@ import {
 	updateLabelSpecs,
 	updatePadding,
 	updateScale,
+	updateCurrentLabelIndex,
+	resetCurrentLabelIndex,
 } from '.';
 
 export const useScale = () => {
@@ -132,7 +134,10 @@ export const useSheetGrid = () => {
 
 export const useSheetIndex = () => {
 	const count = useTemplateSelector((state) => state.sheet.count);
+	const spacing = useLabelSpecSpacing();
+	const maxLabels = spacing.rows * spacing.columns * count;
 	const currentIndex = useTemplateSelector((state) => state.sheet.currentIndex);
+	const currentLabelIndex = useTemplateSelector((state) => state.sheet.currentLabelIndex);
 	const dispatch = useTemplateDispatch();
 	const updateIndex = useCallback(
 		(index: number) => {
@@ -143,10 +148,24 @@ export const useSheetIndex = () => {
 		},
 		[dispatch, count],
 	);
-	return { currentIndex, updateIndex };
+	const updateLabelIndex = useCallback(
+		(index?: number) => {
+			if (index === undefined) {
+				dispatch(resetCurrentLabelIndex());
+				return;
+			}
+			const min = 0;
+			const max = maxLabels - 1;
+			index = Math.min(max, Math.max(min, index));
+			dispatch(updateCurrentLabelIndex(index));
+		},
+		[maxLabels, dispatch],
+	);
+	return { currentIndex, updateIndex, count, currentLabelIndex, updateLabelIndex };
 };
 
 export const useSheetDims = () => {
+	const scale = useScale();
 	const { width, height } = useTemplateSelector((state) => state.sheet.dimensions);
 	const dispatch = useTemplateDispatch();
 	const { unit, convertForClient, convertForStorage } = useUnit();
@@ -168,12 +187,51 @@ export const useSheetDims = () => {
 		height: convertForClient(height),
 		update,
 		unit,
+		scaled: {
+			width: convertForClient(width * scale.scale),
+			height: convertForClient(height * scale.scale),
+		},
 	};
 };
 
+const exceedsSheet = (params: {
+	sheetPadding: Padding;	
+	rows: number;
+	columns: number;
+	sheetDim: { width: number; height: number };
+	labelDims: { width: number; height: number };
+}) => {
+	const { sheetPadding, rows, columns, sheetDim, labelDims } = params;
+	const { width, height } = sheetDim;
+	const { width: labelWidth, height: labelHeight } = labelDims;
+	const { paddingTop, paddingRight, paddingBottom, paddingLeft } = sheetPadding;
+	const totalWidth = labelWidth * columns + paddingLeft + paddingRight;
+	const totalHeight = labelHeight * rows + paddingTop + paddingBottom;
+	const exceeds = totalWidth > width || totalHeight > height;
+	return { exceeds, totalWidth, totalHeight };
+};
+
 export const useLabelSpecSpacing = () => {
-	const { rows, columns, gutterX, gutterY } = useTemplateSelector((state) => state.sheet.labelSpecs);
+	const {scale} = useScale();
+	const {
+		scaled: { top, bottom, left, right },
+	} = useSheetPadding();
+	const {
+		scaled: { width, height },
+	} = useSheetDims();
+	const { rows, columns, labelWidth, labelHeight } = useTemplateSelector((state) => state.sheet.labelSpecs);
 	const { unit, convertForClient, convertForStorage } = useUnit();
+	const safeSize = useMemo(
+		() =>
+			exceedsSheet({
+				sheetPadding: { paddingTop: top, paddingRight: right, paddingBottom: bottom, paddingLeft: left },
+				rows,
+				columns,
+				sheetDim: { width, height },
+				labelDims: { width: labelWidth, height: labelHeight },
+			}),
+		[top, right, bottom, left, rows, columns, width, height, labelWidth, labelHeight],
+	);
 	const dispatch = useTemplateDispatch();
 	const updateRows = useCallback(
 		(rows: number) => {
@@ -195,24 +253,24 @@ export const useLabelSpecSpacing = () => {
 		[dispatch],
 	);
 
-	const updateGutterX = useCallback(
-		(gutterX: number) => {
-			gutterX = convertForStorage(gutterX);
+	const updateLabelWidth = useCallback(
+		(labelWidth: number) => {
+			labelWidth = convertForStorage(labelWidth);
 			const min = 0;
 			const max = 1000;
-			const newGutterX = Math.min(max, Math.max(min, gutterX));
-			dispatch(updateLabelSpecs({ gutterX: newGutterX }));
+			const newLabelWidth = Math.min(max, Math.max(min, labelWidth));
+			dispatch(updateLabelSpecs({ labelWidth: newLabelWidth }));
 		},
 		[dispatch, convertForStorage],
 	);
 
-	const updateGutterY = useCallback(
-		(gutterY: number) => {
-			gutterY = convertForStorage(gutterY);
+	const updateLabelHeight = useCallback(
+		(labelHeight: number) => {
+			labelHeight = convertForStorage(labelHeight);
 			const min = 0;
 			const max = 1000;
-			const newGutterY = Math.min(max, Math.max(min, gutterY));
-			dispatch(updateLabelSpecs({ gutterY: newGutterY }));
+			const newLabelHeight = Math.min(max, Math.max(min, labelHeight));
+			dispatch(updateLabelSpecs({ labelHeight: newLabelHeight }));
 		},
 		[dispatch, convertForStorage],
 	);
@@ -220,12 +278,18 @@ export const useLabelSpecSpacing = () => {
 	return {
 		rows,
 		columns,
-		gutterX: convertForClient(gutterX),
-		gutterY: convertForClient(gutterY),
+		labelWidth: convertForClient(labelWidth),
+		labelHeight: convertForClient(labelHeight),
+		scaled: {
+			labelWidth: convertForClient(labelWidth * scale),
+			labelHeight: convertForClient(labelHeight * scale),
+		},
+		unit,
 		updateRows,
 		updateColumns,
-		updateGutterX,
-		updateGutterY,
+		updateLabelWidth,
+		updateLabelHeight,
+		safeDim: safeSize,
 	};
 };
 
@@ -266,21 +330,22 @@ export const useLabelSpecPadding = () => {
 };
 
 export const useLabelSpecBorder = () => {
-    const { borderWidth, borderColor, borderStyle, borderRadius } = useTemplateSelector(
-        (state) => state.sheet.labelSpecs.border,
-    );
-    const dispatch = useTemplateDispatch();
-    const updateBorder = useCallback((border: Partial<Border>) => {
-        dispatch(updateLabelBorder(border));
-    }, [dispatch]);
+	const { borderWidth, borderColor, borderStyle, borderRadius } = useTemplateSelector(
+		(state) => state.sheet.labelSpecs.border,
+	);
+	const dispatch = useTemplateDispatch();
+	const updateBorder = useCallback(
+		(border: Partial<Border>) => {
+			dispatch(updateLabelBorder(border));
+		},
+		[dispatch],
+	);
 
-
-
-    return {
-        borderWidth,
-        borderColor,
-        borderStyle,
-        borderRadius,
-        updateBorder,
-    };
-}
+	return {
+		borderWidth,
+		borderColor,
+		borderStyle,
+		borderRadius,
+		updateBorder,
+	};
+};
