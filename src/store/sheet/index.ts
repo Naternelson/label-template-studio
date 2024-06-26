@@ -57,8 +57,8 @@ const initialState: Sheet = {
 	labelSpecs: {
 		rows: 2,
 		columns: 2,
-		labelWidth: 3.75,
-		labelHeight: 1.75,
+		labelWidth: 2.70,
+		labelHeight: 1.7,
 		padding: {
 			paddingTop: 0.1,
 			paddingRight: 0.1,
@@ -121,6 +121,7 @@ export const SheetSlice = createSlice({
 			delete state.currentLabelIndex;
 		},
 		updateCurrentLabelIndex: (state, action: PayloadAction<number>) => {
+			console.log({ action })
 			// Calculate the sheet index based on the current label index and the number of labels per sheet
 			state.currentLabelIndex = action.payload;
 			state.currentIndex = Math.floor(action.payload / (state.labelSpecs.rows * state.labelSpecs.columns));

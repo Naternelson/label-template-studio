@@ -32,6 +32,21 @@ const MarginIndicator: React.FC<MarginIndicatorProps> = ({
 	};
 
 	useEffect(() => {
+		const show = () => {
+			setShow(true);
+		};
+		const hide = () => {
+			setShow(false);
+		};
+		document.querySelector(`${inputSelector} input`)?.addEventListener('focus', show);
+		document.querySelector(`${inputSelector} input`)?.addEventListener('blur', hide);
+		return () => {
+			document.querySelector(`${inputSelector} input`)?.removeEventListener('focus', show);
+			document.querySelector(`${inputSelector} input`)?.removeEventListener('blur', hide);
+		};
+	}, [inputSelector]);
+
+	useEffect(() => {
 		setShow(true);
 		const timer = setTimeout(() => {
 			setShow(false);
@@ -75,6 +90,7 @@ const MarginIndicator: React.FC<MarginIndicatorProps> = ({
 			<Box
 				onDoubleClick={onClick}
 				sx={{
+					boxSizing: 'border-box',
 					border: `2px solid transparent`,
 					transition: 'all .1s ease',
 					backgroundColor: alpha(backgroundColor, 0.5),

@@ -2,15 +2,44 @@ import { Box, Typography, styled } from '@mui/material';
 import { BorderColor, PanelColor } from '../../constants';
 import { useContainerHooks } from './useHooks';
 import { Sheet } from '../Sheet';
-import { useTemplateSelector } from '../../store';
+import { useTemplateDispatch, useTemplateSelector } from '../../store';
 import { useEffect, useRef, useState } from 'react';
+import { resetCurrentLabelIndex, updateScale } from '../../store/sheet';
+import { CurrentSheetIndicator } from './CurrentSheetIndicator';
 
 export const SheetContainer = () => {
+	const ref = useRef<HTMLDivElement>(null);
 	const { height, width } = useContainerHooks();
-	return (
-		<Container id="sheet-container">
-			<ScaleIndicator />
+	const dispatch = useTemplateDispatch();
+	const scale = useTemplateSelector((s) => s.sheet.scale);
 
+	const onDoubleClick = () => {
+		dispatch(resetCurrentLabelIndex());
+	};
+
+	useEffect(() => {
+		const handleWheel = (e: WheelEvent) => {
+			if (!e.ctrlKey) return;
+			e.preventDefault();
+			e.stopPropagation();
+			const newScale = scale - e.deltaY * 0.0005;
+			dispatch(updateScale(Math.max(0.25, Math.min(3, newScale))));
+		};
+		const container = ref.current;
+		if (container) {
+			container.addEventListener('wheel', handleWheel, { passive: false });
+		}
+		return () => {
+			if (container) {
+				container.removeEventListener('wheel', handleWheel);
+			}
+		};
+	}, [dispatch, scale]);
+
+	return (
+		<Container id="sheet-container" onDoubleClick={onDoubleClick} ref={ref}>
+			<ScaleIndicator />
+			<CurrentSheetIndicator />
 			<SheetWrapper
 				sx={{
 					width: `calc(${width} + 10rem)`,

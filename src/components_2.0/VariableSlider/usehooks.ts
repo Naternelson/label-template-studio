@@ -66,7 +66,7 @@ export const useVariabelSlider = (params: VariableSliderProps) => {
 
 	const clampValue = (value: number) => {
 		const v = Math.max(min, Math.min(max, value));
-		if (isNaN(v)) return min;
+		if (isNaN(v)) return 0;
 		return v;
 	};
 
@@ -83,7 +83,7 @@ export const useVariabelSlider = (params: VariableSliderProps) => {
 		const startX = e.clientX;
 		const initialValue = value;
 		setMouseDown(true);
-		let holdValue: number;
+		let holdValue: number = initialValue;
 		const handleMouseMove = (moveEvent: MouseEvent) => {
 			document.body.style.cursor = 'w-resize';
 			const currentX = moveEvent.clientX;

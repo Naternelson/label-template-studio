@@ -2,6 +2,7 @@ import { Box, styled } from '@mui/material';
 import { useTemplateSelector } from '../../store';
 import { useClientSelector } from '../../utility';
 import { MarginIndicators } from './MarginIndicators';
+import SheetLabels from '../SheetLabels';
 
 export const Sheet = () => {
 	const sx = useSheetHooks();
@@ -12,15 +13,32 @@ export const Sheet = () => {
 				...sx,
 				position: 'relative',
 				transition: 'all .1s ease',
-				overflow: 'hidden',
+				// overflow: 'hidden',
 				textWrap: 'nowrap',
 			}}>
-			Hello World
+			<SheetLabels />
 			<MarginIndicators />
+			<Overlay />
 		</StyledSheet>
 	);
 };
 
+
+const Overlay = () => {
+	const currentLabelIndex = useTemplateSelector((s) => s.sheet.currentLabelIndex);
+	return <Box sx={{
+		opacity: currentLabelIndex === undefined ? 0: .3,
+		backgroundColor: 'grey',
+		pointerEvents: 'none',
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		width: '100%',
+		height: '100%',
+		zIndex: 500,
+		backdropFilter: 'blur(5px)',
+	}}/>
+}
 const StyledSheet = styled(Box)(({ theme }) => ({
 	color: 'black',
 	backgroundColor: 'white',
