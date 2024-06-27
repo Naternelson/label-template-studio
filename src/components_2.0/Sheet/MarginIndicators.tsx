@@ -25,9 +25,15 @@ const MarginIndicator: React.FC<MarginIndicatorProps> = ({
 	const backgroundColor = useTheme().palette.info.main;
 	const onClick = () => {
 		const el = document.querySelector(`${inputSelector} input`) as HTMLInputElement;
+		const parent = document.querySelector(inputSelector) as HTMLElement;
 		if (el) {
+			parent.classList.add('focus-highlight');
 			el.focus();
 			el.select();
+			el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			parent.addEventListener('animationend', () => {
+				parent.classList.remove('focus-highlight');
+			});
 		}
 	};
 

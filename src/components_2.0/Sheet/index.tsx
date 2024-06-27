@@ -24,21 +24,27 @@ export const Sheet = () => {
 };
 
 
-const Overlay = () => {
+const Overlay: React.FC = () => {
 	const currentLabelIndex = useTemplateSelector((s) => s.sheet.currentLabelIndex);
-	return <Box sx={{
-		opacity: currentLabelIndex === undefined ? 0: .3,
-		backgroundColor: 'grey',
-		pointerEvents: 'none',
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		width: '100%',
-		height: '100%',
-		zIndex: 500,
-		backdropFilter: 'blur(5px)',
-	}}/>
-}
+
+	return (
+		<Box
+			sx={{
+				transition: 'all .3s ease',
+				opacity: currentLabelIndex === undefined ? 0 : 1,
+				backgroundColor: 'rgba(128, 128, 128, 0.15)',
+				pointerEvents: 'none',
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				width: '100%',
+				height: '100%',
+				zIndex: 500,
+				backdropFilter: 'blur(1px)',
+			}}
+		/>
+	);
+};
 const StyledSheet = styled(Box)(({ theme }) => ({
 	color: 'black',
 	backgroundColor: 'white',

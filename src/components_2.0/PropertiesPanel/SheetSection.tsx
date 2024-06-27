@@ -6,7 +6,7 @@ import { VariableSlider } from '../VariableSlider';
 import { updateCount, updateCurrentIndex, updateDimensions, updatePadding } from '../../store/sheet';
 import { useClient, useClientSelector, useStorage } from '../../utility';
 import { ComboBox } from '../ComboBox';
-import { KeyboardEventHandler, useRef, useState } from 'react';
+import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';
 import { Add, ArrowDropDown, ArrowDropUp, Remove } from '@mui/icons-material';
 
 export const SheetSection = () => {
@@ -274,6 +274,12 @@ const CurrentSheetControl = () => {
 		dispatch(updateCount(numValue));
 		setRenderValue(numValue.toString());
 	};
+
+	useEffect(() => {
+		// When the count changes externally, update the input value
+		setRenderValue(count.toString());
+	}, [count]);
+
 	return (
 		<Stack
 			marginTop={'8px'}

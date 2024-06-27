@@ -1,21 +1,24 @@
 import { useEffect, useRef } from "react";
 import { useTemplateDispatch, useTemplateSelector } from "../store";
 import { updateScale } from "../store/sheet";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 export const useScaleToFitWidth = (width: number, params?: {
 	elementId?: string;
 	buffer?: string;
 	block?: 'start' | 'center' | 'end' | 'nearest';
 }) => {
-	const {
+	let {
 		elementId = 'sheet-container',
 		buffer = '10rem',
 		block = 'start',
 	} = params || { elementId: 'sheet-container', buffer: '10rem', block: 'start' };
 	const dispatch = useTemplateDispatch();
+	const theme = useTheme();
+	const isBig = useMediaQuery(theme.breakpoints.up('md'))
 	const unit = useTemplateSelector((s) => s.global.unit);
 	const ref = useRef<HTMLElement>();
-
+	if(!isBig) buffer = "1rem"; 
 	useEffect(() => {
 		if (!ref.current) {
 			const el = document.getElementById(elementId);

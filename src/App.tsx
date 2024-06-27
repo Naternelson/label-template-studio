@@ -3,6 +3,7 @@ import { Background } from './components';
 import { TemplateToolbar } from './components/Toolbar';
 import { Sheet } from './components/Sheet';
 import { ControlPanel } from './components/ControlPanel';
+import "./index.css"
 
 function App() {
 	return (

@@ -47,8 +47,8 @@ const ScaleSlider = () => {
 		label: 'S',
 		value: value,
 		step: 0.01,
-		min: 0.2,
-		max: 3,
+		min: 0.1,
+		max: 5,
 		tooltip: 'Scale',
 		asPercentage: true,
 		onChange: (value: number) => {

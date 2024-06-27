@@ -57,7 +57,7 @@ const initialState: Sheet = {
 	labelSpecs: {
 		rows: 2,
 		columns: 2,
-		labelWidth: 2.70,
+		labelWidth: 2.7,
 		labelHeight: 1.7,
 		padding: {
 			paddingTop: 0.1,
@@ -121,14 +121,20 @@ export const SheetSlice = createSlice({
 			delete state.currentLabelIndex;
 		},
 		updateCurrentLabelIndex: (state, action: PayloadAction<number>) => {
-			console.log({ action })
+			console.log({ action });
 			// Calculate the sheet index based on the current label index and the number of labels per sheet
 			state.currentLabelIndex = action.payload;
 			state.currentIndex = Math.floor(action.payload / (state.labelSpecs.rows * state.labelSpecs.columns));
 		},
 		setState: (state, action: PayloadAction<Sheet>) => {
 			state = action.payload;
-		}
+		},
+		incrementScale: (state, action: PayloadAction<{ increment: number; min: number; max: number }>) => {
+			state.scale = Math.max(
+				action.payload.min,
+				Math.min(action.payload.max, state.scale + action.payload.increment),
+			);
+		},
 	},
 });
 
@@ -146,7 +152,8 @@ export const {
 	updateCurrentIndex,
 	updateCurrentLabelIndex,
 	resetCurrentLabelIndex,
-	setState
+	setState,
+	incrementScale
 } = SheetSlice.actions;
 
 export default SheetSlice.reducer;
