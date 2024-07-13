@@ -19,7 +19,6 @@ export const Viewport = (props: ViewportProps) => {
 	);
 };
 
-
 const Container = styled(Box)(() => ({
     width: "100%",
     position: "relative",

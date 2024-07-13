@@ -7,6 +7,8 @@ import { theme } from './theme';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { globalStyles } from './globalStyles';
+import { RouterProvider } from 'react-router-dom';
+import { router } from './router';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
@@ -15,7 +17,8 @@ root.render(
 		<ThemeProvider theme={theme}>
 			{globalStyles}
 			<Provider store={store}>
-				<App />
+				{/* <App /> */}
+				<RouterProvider router={router} />
 			</Provider>
 		</ThemeProvider>
 	</React.StrictMode>,
