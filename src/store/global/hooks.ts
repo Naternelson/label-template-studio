@@ -1,39 +1,27 @@
-import { useCallback } from 'react';
-import { useTemplateSelector } from '..';
+import { useCallback } from "react";
+import { useTemplateDispatch, useTemplateSelector } from ".."
+import { setScale as setGlobalScale, incrementScale as incrementGlobalScale } from ".";
 
-export const useUnit = () => {
-	const unit = useTemplateSelector((state) => state.global.unit);
-	const convertForStorage = useCallback(
-		(value: number) => {
-			switch (unit) {
-				case 'in':
-					return value;
-				case 'cm':
-					return value / 2.54;
-				case 'mm':
-					return value / 25.4;
-			}
-		},
-		[unit],
-	);
+export const useGlobalScale = () => {
+    return useTemplateSelector((state) => state.global.scale);
+}
 
-	const convertForClient = useCallback(
-		(value: number) => {
-			switch (unit) {
-				case 'in':
-					return value;
-				case 'cm':
-					return value * 2.54;
-				case 'mm':
-					return value * 25.4;
-			}
-		},
-		[unit],
-	);
+export const useGlobalScaleControls = () => {
+    const dispatch = useTemplateDispatch();
+    const scale = useGlobalScale();
+    const setScale = useCallback(
+        (value: number) => {
+            dispatch(setGlobalScale(value));
+        },
+        [dispatch],
+    );
 
-	return {
-		unit,
-		convertForStorage,
-		convertForClient,
-	};
-};
+    const incrementScale = useCallback(
+        (value: number) => {
+            dispatch(incrementGlobalScale(value));
+        },
+        [dispatch],
+    );
+
+    return { scale, setScale, incrementScale };
+}

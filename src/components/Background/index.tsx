@@ -1,10 +1,13 @@
-import { Box, styled } from "@mui/material";
-import { BorderColor, PanelColor, backgroundColor, lineColor } from "../../constants";
-
-export const Background = styled(Box)({
+import styled from '@emotion/styled';
+import { BorderColor, PanelColor, backgroundColor, lineColor } from "../util"
+import { Box, BoxProps } from '@mui/material';
+export const Background = (props: BoxProps) => {
+	return <StyledDesignBackground {...props} />;
+};
+export const StyledDesignBackground = styled(Box)({
 	overflow: 'hidden',
 	color: 'white',
-	position: 'fixed',
+	position: 'absolute',
 	top: 0,
 	left: 0,
 	bottom: 0,

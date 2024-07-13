@@ -6,25 +6,25 @@ export const globalStyles = (
 			'@keyframes focus-highlight': {
 				'0%': {
                     
-					border: `1px solid white`,
-					boxShadow: `0 0 5px 2px rgba(255, 255, 255, 1), 0 0 10px 5px ${alpha(
-						theme.palette.primary.main,
-						0.7,
-					)}`,
-					transform: 'scale(1.03)',
+					// border: `1px solid white`,
+					// boxShadow: `0 0 5px 2px rgba(255, 255, 255, 1), 0 0 10px 5px ${alpha(
+					// 	theme.palette.primary.main,
+					// 	0.7,
+					// )}`,
+					transform: 'scale(1.05)',
 				},
 				'100%': {
-					border: `1px solid ${theme.palette.primary.main}`,
-					boxShadow: `0 0 5px 2px rgba(255, 255, 255, 0), 0 0 10px 5px ${alpha(
-						theme.palette.primary.main,
-						0,
-					)}`,
+					// border: `1px solid ${theme.palette.primary.main}`,
+					// boxShadow: `0 0 5px 2px rgba(255, 255, 255, 0), 0 0 10px 5px ${alpha(
+					// 	theme.palette.primary.main,
+					// 	0,
+					// )}`,
 					transform: 'scale(1)',
 				},
 			},
 			'@keyframes focus-glow': {
 				'0%': {
-					opacity: 0.75,
+					opacity: 0.5,
 				},
 				'100%': {
 					opacity: 0,

@@ -13,11 +13,11 @@ code {
 /* create a keyframe that adds a pseudo white overlay the element, and scales it from 1.2 back to 1, and adds a box-shadow with a white glow and also fades away */
 @keyframes focus-highlight {
   0% {
-    box-shadow: 0 0 20px 5px rgba(255, 255, 255, .5);
+    /* box-shadow: 0 0 20px 5px rgba(255, 255, 255, .5); */
     transform: scale(1.05);
   }
   100% {
-    box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0);
+    /* box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0); */
     transform: scale(1);
   }
 }
