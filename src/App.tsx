@@ -1,18 +1,29 @@
-import { Stack } from '@mui/material';
-import { Background } from './components';
-import { TemplateToolbar } from './components/Toolbar';
-import { Sheet } from './components/Sheet';
-import { ControlPanel } from './components/ControlPanel';
-import "./index.css"
+import { Box, Stack, Toolbar, Typography } from '@mui/material';
+import { Background, SheetContainer, PropertiesPanel } from './components';
+import {  } from './components/PropertiesPanel';
+import { BorderColor, PanelColor } from './constants';
+import { useTemplateSelector } from './store';
 
 function App() {
+	const name = useTemplateSelector((s) => s.global.name);
 	return (
 		<Background>
-			<TemplateToolbar />
-			<Stack direction={'row'} justifyContent={'space-around'} flex={1} sx={{"overflow": "hidden"}}>
-
-				<Sheet />
-				<ControlPanel />
+			<Toolbar sx={{ backgroundColor: PanelColor, borderBottom: `1px solid ${BorderColor}` }}>
+				<Box></Box>
+				<Stack direction="row" alignItems={'center'} flex={1} justifyContent={'center'}>
+					<Typography variant="subtitle1" textAlign={'center'} sx={{"& > span": {
+						color: 'rgba(255,255,255,.5)',
+						userSelect: 'none',
+					
+					}}}>
+						<span>Template / </span> {name}
+					</Typography>
+				</Stack>
+				<Box></Box>
+			</Toolbar>
+			<Stack direction={'row'} justifyContent={'space-around'} flex={1} sx={{ overflow: 'hidden' }}>
+				<SheetContainer />
+				<PropertiesPanel />
 			</Stack>
 		</Background>
 	);

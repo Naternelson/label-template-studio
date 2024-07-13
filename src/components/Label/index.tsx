@@ -1,53 +1,82 @@
-import { Box, Grid, alpha, useTheme } from '@mui/material';
-import { Sheet } from '../../store/sheet';
-import { Border, Padding } from '../../types';
-import { GlobalState } from '../../store/global';
-import { useSheetIndex } from '../../store/sheet/hooks';
+import { Paper, SxProps } from '@mui/material';
+import { useTemplateDispatch, useTemplateSelector } from '../../store';
+import { useClientSelector } from '../../utility';
+import { useEffect, useRef, useState } from 'react';
+import { updateCurrentLabelIndex } from '../../store/sheet';
 
 export type LabelProps = {
-	width: number;
-	height: number;
-	unit: GlobalState['unit'];
-	padding: Padding;
-	border: Border;
-	index: number;
-	color: string;
+	labelIndex: number;
 };
 
 export const Label = (props: LabelProps) => {
-	const { padding, unit, border, index, height, width, color: backgroundColor } = props;
-	const theme = useTheme();
-	const color = theme.palette.primary.main;
-	const { currentLabelIndex, updateLabelIndex } = useSheetIndex();
-	const selected = currentLabelIndex === index;
-	const handleOnClick = (e: React.MouseEvent) => {
+	const ref = useRef<HTMLDivElement>(null);
+	const currentLabelIndex = useTemplateSelector((s) => s.sheet.currentLabelIndex);
+	const [hovering, setHovering] = useState(false);
+	const backgroundColor = useTemplateSelector((s) => s.sheet.background.color);
+	const paddingTop = useClientSelector((s) => s.sheet.labelSpecs.padding.paddingTop);
+	const paddingRight = useClientSelector((s) => s.sheet.labelSpecs.padding.paddingRight);
+	const paddingBottom = useClientSelector((s) => s.sheet.labelSpecs.padding.paddingBottom);
+	const paddingLeft = useClientSelector((s) => s.sheet.labelSpecs.padding.paddingLeft);
+
+	const scale = useTemplateSelector((s) => s.sheet.scale);
+
+	const height = useClientSelector((s) => s.sheet.labelSpecs.labelHeight);
+	const width = useClientSelector((s) => s.sheet.labelSpecs.labelWidth);
+	const border = useTemplateSelector((s) => s.sheet.labelSpecs.border);
+	const selected = currentLabelIndex === props.labelIndex;
+
+	const sx: SxProps = {
+		transition: 'all .1s ease',
+		fontSize: calc('12px', scale),
+		color: 'black',
+		backgroundColor: backgroundColor,
+		width: calc(width, scale),
+		height: calc(height, scale),
+		paddingTop: calc(paddingTop, scale),
+		paddingRight: calc(paddingRight, scale),
+		paddingBottom: calc(paddingBottom, scale),
+		paddingLeft: calc(paddingLeft, scale),
+		border: `${border.borderWidth}px ${border.borderStyle} ${border.borderColor}`,
+		borderRadius: border.borderRadius,
+		zIndex: selected ? 1000 : hovering ? 1000 : 0,
+		flexShrink: 0,
+		flexGrow: 0,
+	};
+
+	const onMouseOver = () => {
+		setHovering(true);
+	};
+	const onMouseOut = () => {
+		setHovering(false);
+	};
+	const elevation = selected ? 10 : hovering ? 5 : 1;
+	const dispatch = useTemplateDispatch();
+	const onDoubleClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		if (selected) return;
-		updateLabelIndex(index);
+		dispatch(updateCurrentLabelIndex(props.labelIndex));
 	};
+
+	useEffect(() => {
+		if (!selected) return;
+		ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+	}, [selected]);
 	return (
-		<Box
-			zIndex={selected ? 101 : 0}
-			aria-label="template-label"
-			onClick={handleOnClick}
-			data-focused={selected ? 'true' : 'false'}
-			data-index={index}
-			sx={{
-				boxSizing: 'border-box',
-				backgroundColor: "blue",
-				height: `${height}${unit}`,
-				width: `${width}${unit}`,
-				padding: `${padding.paddingTop}${unit} ${padding.paddingRight}${unit} ${padding.paddingBottom}${unit} ${padding.paddingLeft}${unit}`,
-				border: `${border.borderWidth}${unit} ${border.borderStyle} ${border.borderColor}`,
-				position: 'relative',
-				boxShadow: 'none',
-				outline: 'none',
-				transition: 'box-shadow 0.3s',
-				"&[data-focused='true']": {
-					boxShadow: `0 0 40px 10px ${alpha(color, 0.7)}`,
-				},
-			}}>
+		<Paper
+			ref={ref}
+			onDoubleClick={onDoubleClick}
+			aria-selected={selected}
+			id={'label-' + props.labelIndex}
+			elevation={elevation}
+			sx={sx}
+			onMouseEnter={onMouseOver}
+			onMouseLeave={onMouseOut}>
 			Hi there
-		</Box>
+		</Paper>
 	);
 };
+
+const calc = (value: string, scale: number) => {
+	return `calc(${value} * ${scale})`;
+};
+
