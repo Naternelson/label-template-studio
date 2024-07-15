@@ -1,11 +1,10 @@
 import { Box, Typography } from '@mui/material';
 import { Viewport } from '../../../components';
-import { backgroundColor } from '../../../constants';
 import './index.css';
 
 export const ViewportComp = () => {
 	return (
-		<Viewport>
+		<Viewport boundary={50}>
 			<SampleElement />
 		</Viewport>
 	);
@@ -17,8 +16,8 @@ const SampleElement = () => {
 			sx={{
 				color: (t) => t.palette.primary.main,
 				backgroundColor: 'white',
-				height: '2000px',
-				width: '2000px',
+				height: '200px',
+				width: '200px',
 				borderRadius: '10px',
 				display: 'flex',
 				justifyContent: 'center',

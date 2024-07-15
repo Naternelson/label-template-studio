@@ -1,38 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { setElementPosition, getElementPosition, dBounds } from './util';
+import { setElementPosition, getElementPosition, dBounds, Boundary, Center } from './util';
 
-type Boundary = {
-	top?: number;
-	left?: number;
-	right?: number;
-	bottom?: number;
-	x?: number;
-	y?: number;
-};
 
-type Center = boolean | { x?: boolean; y?: boolean };
-
-type UseDraggableParams = {
-	/**
-	 * The id of the container element
-	 */
+export type UseDraggableParams = {
 	containerId: string;
-	/**
-	 * The id of the content element, this will the element that will be adjusted its left and top properties
-	 */
 	contentId: string;
-	/**
-	 * If true, the draggable functionality will be disabled
-	 */
 	disabled?: boolean;
-	/**
-	 * The boundaries of the content element, the element will not be able to move outside these boundaries
-	 * Provides a buffer of the specified number of pixels from the edge of the container
-	 */
-	boundary?: number | Boundary;
-	/**
-	 * Prioritize centering the element within the container, can be set to true to center both horizontally and vertically
-	 */
+	boundary?: Boundary;
 	center?: Center;
 };
 
@@ -117,9 +91,6 @@ export const useDraggable = (params: UseDraggableParams) => {
 	}, [isPanning]);
 
 	useEffect(() => {
-		/**
-		 * Attach event listeners
-		 */
 		const elements = getElements();
 		if (!elements) return;
 		const { container, content } = elements;
@@ -152,11 +123,17 @@ export const useDraggable = (params: UseDraggableParams) => {
 	]);
 
 	useLayoutEffect(() => {
-		/** Disable transitiong, position the element appropriately, then reestablish transitioning */
-		setIsPanning(true);
-		repositionInitialPosition(params).then(() => {
-			setIsPanning(false);
-		});
+		let isMounted = true;
+		console.group("Initialising 'useDraggable'");
+		(async () => {
+			setIsPanning(true);
+			await repositionInitialPosition(params);
+			if (isMounted) setIsPanning(false);
+			console.groupEnd();
+		})();
+		return () => {
+			isMounted = false;
+		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -167,10 +144,6 @@ export const useDraggable = (params: UseDraggableParams) => {
 	};
 };
 
-/**
- *
- * Use this function after the element to reposition the element appropraitely, according the the bounds set to it and whether to prioritize centering the element
- */
 const reposition = (params: UseDraggableParams) => {
 	const { containerId, contentId, center, boundary } = params;
 	const container = document.getElementById(containerId);
@@ -194,10 +167,6 @@ const reposition = (params: UseDraggableParams) => {
 	moveInBoundaries({ containerId, contentId, boundary });
 };
 
-/**
- * Determine the initial position of the element, prioritizing centering the element, and applying the boundaries
- * If centering the element makes it so that the upper left hand corner of the element is outside the boundaries, the element will be repositioned to fit within the boundaries
- */
 const repositionInitialPosition = async (params: UseDraggableParams) => {
 	const { containerId, contentId, boundary } = params;
 	const container = document.getElementById(containerId);
@@ -209,6 +178,15 @@ const repositionInitialPosition = async (params: UseDraggableParams) => {
 
 	centerElement({ container, content });
 	const containerRect = container.getBoundingClientRect();
+	console.log({
+		content: { position: getElementPosition(content), bounds: dBounds(boundary) },
+		container: {
+			width: containerRect.width,
+			height: containerRect.height,
+			bounds: dBounds(boundary),
+		},
+	});
+	console.log('Yo');
 
 	setElementPosition(content, (prev) => {
 		let top = prev.top;
@@ -224,11 +202,6 @@ const repositionInitialPosition = async (params: UseDraggableParams) => {
 	});
 };
 
-/**
- *
- * Move the element to fit within the boundaries set
- *
- */
 const moveInBoundaries = (params: UseDraggableParams) => {
 	const { containerId, contentId, boundary } = params;
 	const container = document.getElementById(containerId);
@@ -250,10 +223,10 @@ const moveInBoundaries = (params: UseDraggableParams) => {
 		const maxLeft = Math.max(limitLeft_0, limitLeft_1);
 
 		const hasYBounds = boundaries.top !== undefined && boundaries.bottom !== undefined;
-		const limtTop_0 = hasYBounds ? containerRect.height - contentRect.height - (boundaries.bottom ?? 0) : prev.top;
+		const limitTop_0 = hasYBounds ? containerRect.height - contentRect.height - (boundaries.bottom ?? 0) : prev.top;
 		const limitTop_1 = hasYBounds ? boundaries.top ?? 0 : prev.top;
-		const minTop = Math.min(limtTop_0, limitTop_1);
-		const maxTop = Math.max(limtTop_0, limitTop_1);
+		const minTop = Math.min(limitTop_0, limitTop_1);
+		const maxTop = Math.max(limitTop_0, limitTop_1);
 
 		const left = Math.min(Math.max(prev.left, minLeft), maxLeft);
 		const top = Math.min(Math.max(prev.top, minTop), maxTop);
@@ -261,12 +234,6 @@ const moveInBoundaries = (params: UseDraggableParams) => {
 	});
 };
 
-/**
- *
- * Center the content element vertically within the container element
- * if Provided a target element, the content element will be centered relative to the target element
- * The target Element should be a descendant of the content element
- */
 const centerVertically = (params: { container: HTMLElement; content: HTMLElement; target?: HTMLElement }) => {
 	const { container, content, target } = params;
 	const containerRect = container.getBoundingClientRect();
@@ -281,12 +248,6 @@ const centerVertically = (params: { container: HTMLElement; content: HTMLElement
 	setElementPosition(content, { top });
 };
 
-/**
- *
- * Center the content element horizontally within the container element
- * if Provided a target element, the content element will be centered relative to the target element
- * The target Element should be a descendant of the content element
- */
 const centerHorizontally = (params: { container: HTMLElement; content: HTMLElement; target?: HTMLElement }) => {
 	const { container, content, target } = params;
 	const containerRect = container.getBoundingClientRect();
@@ -301,12 +262,34 @@ const centerHorizontally = (params: { container: HTMLElement; content: HTMLEleme
 	setElementPosition(content, { left });
 };
 
-/**
- *
- * Center the content element within the container element
- * if Provided a target element, the content element will be centered relative to the target element
- */
 const centerElement = (params: { container: HTMLElement; content: HTMLElement; target?: HTMLElement }) => {
 	centerHorizontally(params);
 	centerVertically(params);
+};
+
+export const useCenterContent = (params: {
+	containerId: string;
+	contentId: string;
+	center?: Center;
+	target?: string;
+}) => {
+	const { containerId, contentId, center, target: targetId } = params;
+	return useCallback(() => {
+		const content = document.getElementById(contentId);
+		const container = document.getElementById(containerId);
+		const target = targetId ? document.getElementById(targetId) : content;
+		if (!content || !container || !target) {
+			console.warn('Parent or content element not found');
+			return;
+		}
+		if (typeof center === 'object') {
+			if (center.x) centerHorizontally({ container, content, target });
+			if (center.y) centerVertically({ container, content, target });
+		} else
+			centerElement({
+				container,
+				content,
+				target,
+			});
+	}, [center, containerId, contentId, targetId]);
 };

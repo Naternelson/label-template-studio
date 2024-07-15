@@ -39,92 +39,21 @@ export function setElementPosition(
 	if (top !== undefined) element.style.top = `${top}px`;
 	if (left !== undefined) element.style.left = `${left}px`;
 	if (scale !== undefined) element.style.transform = `scale(${scale})`;
-	console.log({ top, left, scale });
 }
 
-export type Boundary = {
-	top?: number;
-	left?: number;
-	right?: number;
-	bottom?: number;
-	x?: number;
-	y?: number;
-};
+export type Boundary =
+	| number
+	| {
+			top?: number;
+			left?: number;
+			right?: number;
+			bottom?: number;
+			x?: number;
+			y?: number;
+	  };
 
-export const centerElementVertically = (params: {
-	targetEl: HTMLElement;
-	parentEl: HTMLElement;
-	boundary?: number | Boundary;
-}) => {
-	const { targetEl, parentEl, boundary } = params;
-	const parent = parentEl.getBoundingClientRect();
-	const s = targetEl.style.transform ? parseFloat(targetEl.style.transform.split('(')[1]) : 1;
-	const target = {
-		top: targetEl.style.top ? parseInt(targetEl.style.top) : 0,
-		left: targetEl.style.left ? parseInt(targetEl.style.left) : 0,
-		height: scale(s, targetEl.getBoundingClientRect().height),
-		width: scale(s, targetEl.getBoundingClientRect().width),
-	};
-	const bounds = dBounds(boundary);
-	const maxTop = boundary ? parent.height - target.height - (bounds.bottom || 0) : null;
-	const minTop = boundary ? bounds.top || 0 : null;
-	const newTop = (parent.height - target.height) / 2;
-	const top = Math.min(Math.max(newTop, minTop || newTop), maxTop || newTop);
-	targetEl.style.top = `${top}px`;
-};
+export type Center = boolean | { x?: boolean; y?: boolean };
 
-export const centerElementHorizontally = (params: {
-	targetEl: HTMLElement;
-	parentEl: HTMLElement;
-	boundary?: number | Boundary;
-}) => {
-	const { targetEl, parentEl, boundary } = params;
-	const parent = parentEl.getBoundingClientRect();
-	const s = targetEl.style.transform ? parseFloat(targetEl.style.transform.split('(')[1]) : 1;
-	const target = {
-		top: targetEl.style.top ? parseInt(targetEl.style.top) : 0,
-		left: targetEl.style.left ? parseInt(targetEl.style.left) : 0,
-		height: scale(s, targetEl.getBoundingClientRect().height),
-		width: scale(s, targetEl.getBoundingClientRect().width),
-	};
-	const bounds = dBounds(boundary);
-	const maxLeft = boundary ? parent.width - target.width - (bounds.right || 0) : null;
-	const minLeft = boundary ? bounds.left || 0 : null;
-	const newLeft = (parent.width - target.width) / 2;
-	const left = Math.min(Math.max(newLeft, minLeft || newLeft), maxLeft || newLeft);
-	targetEl.style.left = `${left}px`;
-};
-
-export const centerElement = (params: {
-	targetEl: HTMLElement;
-	parentEl: HTMLElement;
-	boundary?: number | Boundary;
-}) => {
-	const { targetEl, parentEl, boundary } = params;
-	const parent = parentEl.getBoundingClientRect();
-	const s = targetEl.style.transform ? parseFloat(targetEl.style.transform.split('(')[1]) : 1;
-	const target = {
-		top: targetEl.style.top ? parseInt(targetEl.style.top) : 0,
-		left: targetEl.style.left ? parseInt(targetEl.style.left) : 0,
-		height: scale(s, targetEl.getBoundingClientRect().height),
-		width: scale(s, targetEl.getBoundingClientRect().width),
-	};
-	const bounds = dBounds(boundary);
-	const maxTop = boundary ? parent.height - target.height - (bounds.bottom || 0) : null;
-	const minTop = boundary ? bounds.top || 0 : null;
-	const newTop = (parent.height - target.height) / 2;
-	const top = Math.min(Math.max(newTop, minTop || newTop), maxTop || newTop);
-	targetEl.style.top = `${top}px`;
-	const maxLeft = boundary ? parent.width - target.width - (bounds.right || 0) : null;
-	const minLeft = boundary ? bounds.left || 0 : null;
-	const newLeft = (parent.width - target.width) / 2;
-	const left = Math.min(Math.max(newLeft, minLeft || newLeft), maxLeft || newLeft);
-	targetEl.style.left = `${left}px`;
-};
-
-const scale = (scale: number, property?: number) => {
-	return property ? property * scale : 0;
-};
 
 export const dBounds = (boundary: number | Boundary | undefined) => {
 	const boundaries =
