@@ -1,29 +1,60 @@
-import { Box, styled } from '@mui/material';
+import { Box, BoxProps, styled } from '@mui/material';
+import { gridDarkStyle } from '../../styles';
+import { useDraggable } from './useDraggable';
+import { useScaling } from './useScaling';
 
 export type ViewportProps = {
 	children: React.ReactNode;
-    parentId?: string;
-    contentId?: string;
+	parentProps?: BoxProps;
+	contentProps?: BoxProps;
 };
 
 export const Viewport = (props: ViewportProps) => {
-    const { children, parentId, contentId:ci } = props;
-    const containerId = `viewport-container${parentId ? `-${parentId}` : ''}`;
-    const contentId = `viewport-content${ci ? `-${ci}` : ''}`;
+	const { children, parentProps, contentProps } = props;
+	const { id: parentId, ...p } = parentProps || {};
+	const { id: ci, ...c } = contentProps || {};
+	const containerId = `viewport-container${parentId ? `-${parentId}` : ''}`;
+	const contentId = `viewport-content${ci ? `-${ci}` : ''}`;
+
+	const { cursor, isPanning } = useDraggable({ containerId, contentId, boundary: 16, center:true });
+	useScaling({
+		containerId,
+		contentId,
+		boundary: 16,
+	});
+
 	return (
-		<Container id={containerId}>
-			<Content id={contentId}>
-                {children}
-            </Content>
+		<Container
+			id={containerId}
+			sx={{
+				cursor: cursor,
+			}}
+			{...p}>
+			<Content
+				id={contentId}
+				sx={{
+					transition: isPanning ? 'none' : 'all .5s cubic-bezier(0.16, 1, 0.3, 1)',
+				}}
+				{...c}>
+				{children}
+			</Content>
+			{/* <CenterButton /> */}
 		</Container>
 	);
 };
 
+// const CenterButton = () => {
+// 	// const onClick = useCenterElement({ target: 'viewport-content' });
+// 	return <Button onClick={onClick} sx={{position: "absolute", bottom: 0, right: "20px"}}>Center</Button>;
+// }
+
 const Container = styled(Box)(() => ({
-    width: "100%",
-    position: "relative",
+	...gridDarkStyle,
+	flex: 1,
+	overflow: 'hidden',
 }));
 
 const Content = styled(Box)(() => ({
-    position: "absolute",
+	position: 'absolute',
+	height: 'fit-content',
 }));

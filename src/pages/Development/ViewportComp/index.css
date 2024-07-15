@@ -1,0 +1,59 @@
+:root {
+	--PanelColor: rgba(40, 40, 40, 1);
+	--BorderColor: rgba(255, 255, 255, 0.1);
+	--backgroundColor: rgba(20, 20, 20, 1);
+	--lineColor: rgba(255, 255, 255, 0.02);
+}
+.grid-background {
+	color: white;
+	background-color: var(--backgroundColor);
+	scrollbar-color: var(--BorderColor) var(--PanelColor);
+	scrollbar-width: thin;
+}
+.gird-background::after {
+	pointer-events: none;
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 100%;
+	background-image: linear-gradient(to right, var(--lineColor) 1px, transparent 1px),
+		linear-gradient(to bottom, var(--lineColor) 1px, transparent 1px);
+	background-size: 80px 80px;
+	background-position: 0px 0px;
+	/* z-index: -1; */
+}
+
+.grid-background::before {
+	pointer-events: none;
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 100%;
+	background-image: linear-gradient(to right, var(--lineColor) 1px, transparent 1px),
+		linear-gradient(to bottom, var(--lineColor) 1px, transparent 1px);
+	background-size: 20px 20px;
+	background-position: 0px 0px;
+	/* z-index: -1; */
+}
+
+.grid-background::-webkit-scrollbar {
+	width: 12px;
+	height: 12px;
+}
+
+.grid-background::-webkit-scrollbar-thumb {
+	background-color: var(--BorderColor);
+	border-radius: 6px;
+	border: 3px solid var(--PanelColor);
+}
+
+.grid-background::-webkit-scrollbar-track {
+	background-color: var(--PanelColor);
+	border-radius: 6px;
+}
