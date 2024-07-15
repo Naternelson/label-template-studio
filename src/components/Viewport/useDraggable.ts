@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { setElementPosition, getElementPosition, dBounds, Boundary, Center } from './util';
 
-
 export type UseDraggableParams = {
 	containerId: string;
 	contentId: string;
@@ -73,7 +72,52 @@ export const useDraggable = (params: UseDraggableParams) => {
 		[isPanning, disabled],
 	);
 
+	const handleTouchStart = useCallback(
+		(e: TouchEvent) => {
+			if (disabled) return;
+			const touch = e.touches[0];
+			if (touch) {
+				setIsPanning(true);
+				startX.current = touch.clientX;
+				startY.current = touch.clientY;
+			}
+		},
+		[disabled],
+	);
+
+	const handleTouchMove = useCallback(
+		(content: HTMLElement) => (e: TouchEvent) => {
+			if (disabled || !isPanning) return;
+			const touch = e.touches[0];
+			if (touch) {
+				e.preventDefault();
+				const dx = touch.clientX - startX.current;
+				const dy = touch.clientY - startY.current;
+
+				setElementPosition(content, (prev) => ({
+					...prev,
+					left: prev.left + dx,
+					top: prev.top + dy,
+				}));
+
+				startX.current = touch.clientX;
+				startY.current = touch.clientY;
+			}
+		},
+		[isPanning, disabled],
+	);
+
 	const handleMouseUp = useCallback(() => {
+		if (isPanning) {
+			const elements = getElements();
+			if (elements) {
+				moveInBoundaries({ containerId, contentId, boundary });
+			}
+			setIsPanning(false);
+		}
+	}, [isPanning, getElements, boundary, containerId, contentId]);
+
+	const handleTouchEnd = useCallback(() => {
 		if (isPanning) {
 			const elements = getElements();
 			if (elements) {
@@ -96,10 +140,17 @@ export const useDraggable = (params: UseDraggableParams) => {
 		const { container, content } = elements;
 
 		const onMouseMove = handleMouseMove(content);
+		const onTouchMove = handleTouchMove(content);
+
 		container.addEventListener('mousedown', handleMouseDown);
 		container.addEventListener('mousemove', onMouseMove);
 		container.addEventListener('mouseup', handleMouseUp);
 		container.addEventListener('mouseleave', handleMouseUp);
+
+		container.addEventListener('touchstart', handleTouchStart);
+		container.addEventListener('touchmove', onTouchMove);
+		container.addEventListener('touchend', handleTouchEnd);
+
 		document.addEventListener('keydown', handleKeyDown);
 		document.addEventListener('keyup', handleKeyUp);
 
@@ -108,6 +159,11 @@ export const useDraggable = (params: UseDraggableParams) => {
 			container.removeEventListener('mousemove', onMouseMove);
 			container.removeEventListener('mouseup', handleMouseUp);
 			container.removeEventListener('mouseleave', handleMouseUp);
+
+			container.removeEventListener('touchstart', handleTouchStart);
+			container.removeEventListener('touchmove', onTouchMove);
+			container.removeEventListener('touchend', handleTouchEnd);
+
 			document.removeEventListener('keydown', handleKeyDown);
 			document.removeEventListener('keyup', handleKeyUp);
 		};
@@ -119,6 +175,9 @@ export const useDraggable = (params: UseDraggableParams) => {
 		handleKeyUp,
 		handleMouseDown,
 		handleMouseMove,
+		handleTouchStart,
+		handleTouchMove,
+		handleTouchEnd,
 		getElements,
 	]);
 
@@ -200,6 +259,7 @@ const repositionInitialPosition = async (params: UseDraggableParams) => {
 		}
 		return { ...prev, left, top };
 	});
+	moveInBoundaries({ containerId, contentId, boundary });
 };
 
 const moveInBoundaries = (params: UseDraggableParams) => {

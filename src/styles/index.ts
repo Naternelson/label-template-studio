@@ -1,7 +1,7 @@
-import { styled, Box, CSSObject } from '@mui/material';
+import { CSSObject } from '@mui/material';
 import { backgroundColor, lineColor } from '../constants';
 
-export const pseudoOverlay:CSSObject = {
+export const pseudoOverlay: CSSObject = {
 	content: '""',
 	position: 'absolute',
 	top: 0,
@@ -10,7 +10,7 @@ export const pseudoOverlay:CSSObject = {
 	bottom: 0,
 };
 
-export const gridDarkStyle:CSSObject = {
+export const gridDarkStyle: CSSObject = {
 	position: 'relative',
 	color: 'white',
 	backgroundColor,
@@ -31,4 +31,3 @@ export const gridDarkStyle:CSSObject = {
 		backgroundPosition: '0px 0px',
 	},
 };
-

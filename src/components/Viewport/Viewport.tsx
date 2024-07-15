@@ -66,8 +66,8 @@ export const Viewport = (props: ViewportProps) => {
 				direction="column"
 				sx={{ position: 'absolute', bottom: 10, right: '50%', transform: 'translateX(50%)' }}>
 				<CenterButton />
-				{boundaryControls.render()}
-				{disableControls.render()}
+				{/* {boundaryControls.render()}
+				{disableControls.render()} */}
 			</Stack>
 		</Container>
 	);

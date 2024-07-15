@@ -4,7 +4,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 
 export const DevLayout = () => {
 	return (
-		<Box sx={{ display: "flex", height: '100vh', padding: '5rem 2rem', backgroundColor: '#B0E0E6' }}>
+		<Box sx={{ display: "flex", height: '100vh', padding: '2rem 2rem', backgroundColor: '#B0E0E6' }}>
 			<Paper elevation={10} sx={{flex: 1, overflow: "auto", display: 'flex'}}>
 				<Outlet />
 			</Paper>
