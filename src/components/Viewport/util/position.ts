@@ -4,8 +4,8 @@ export type Position = {
 	scale: number;
 	width: number;
 	height: number;
-    x: number;
-    y: number;
+	x: number;
+	y: number;
 };
 
 /**
@@ -15,13 +15,12 @@ export type Position = {
  */
 export function getElementPosition(element: HTMLElement, scaleEl?: HTMLElement): Position {
 	const rect = element.getBoundingClientRect();
-	let  scale: number;
-    if(scaleEl){
-        scale = scaleEl.style.transform ? parseFloat(scaleEl.style.transform.split('(')[1]) : 1;
-    }
-    else{
-        scale = element.style.transform ? parseFloat(element.style.transform.split('(')[1]) : 1;
-    }
+	let scale: number;
+	if (scaleEl) {
+		scale = scaleEl.style.transform ? parseFloat(scaleEl.style.transform.split('(')[1]) : 1;
+	} else {
+		scale = element.style.transform ? parseFloat(element.style.transform.split('(')[1]) : 1;
+	}
 	const width = rect.width * scale;
 	const height = rect.height * scale;
 	const left = element.style.left ? parseInt(element.style.left) : 0;
@@ -40,30 +39,3 @@ export function setElementPosition(
 	if (left !== undefined) element.style.left = `${left}px`;
 	if (scale !== undefined) element.style.transform = `scale(${scale})`;
 }
-
-export type Boundary =
-	| number
-	| {
-			top?: number;
-			left?: number;
-			right?: number;
-			bottom?: number;
-			x?: number;
-			y?: number;
-	  };
-
-export type Center = boolean | { x?: boolean; y?: boolean };
-
-
-export const dBounds = (boundary: number | Boundary | undefined) => {
-	const boundaries =
-		typeof boundary === 'number'
-			? { top: boundary, left: boundary, right: boundary, bottom: boundary }
-			: {
-					top: boundary?.top ?? boundary?.y,
-					left: boundary?.left ?? boundary?.x,
-					right: boundary?.right ?? boundary?.x,
-					bottom: boundary?.bottom ?? boundary?.y,
-			  };
-	return boundaries;
-};

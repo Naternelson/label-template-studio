@@ -9,6 +9,7 @@ import { store } from './store';
 import { globalStyles } from './globalStyles';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
+import { GamepadProvider } from './components';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
@@ -17,8 +18,9 @@ root.render(
 		<ThemeProvider theme={theme}>
 			{globalStyles}
 			<Provider store={store}>
-				{/* <App /> */}
-				<RouterProvider router={router} />
+				<GamepadProvider>
+					<RouterProvider router={router} />
+				</GamepadProvider>
 			</Provider>
 		</ThemeProvider>
 	</React.StrictMode>,

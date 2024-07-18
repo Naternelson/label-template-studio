@@ -1,9 +1,10 @@
 import { Box, BoxProps, Button, FormControlLabel, Stack, styled, Switch, TextField, Typography } from '@mui/material';
 import { gridDarkStyle } from '../../styles';
-import { useCenterContent, useDraggable } from './useDraggable';
-import { useScaling } from './useScaling';
-import { Boundary, Center } from './util';
+
 import { useState } from 'react';
+import { Boundary, Center, useCenterContent } from './util';
+import { useDraggable } from './hooks';
+import { Scrollbars } from './Scrollbars';
 
 export type ViewportProps = {
 	children: React.ReactNode;
@@ -59,6 +60,7 @@ export const Viewport = (props: ViewportProps) => {
 				{...c}>
 				{children}
 			</Content>
+			<Scrollbars contentId={contentId} containerId={containerId} boundary={boundary} />
 			<Stack
 				gap={1}
 				justifyContent={'center'}
